@@ -69,60 +69,70 @@ def parse_args():
 
 	return parser.parse_args()
 
-class MySentences(object):
+class MySentences(object): # this class is used to read the corpus and mesh knowledge
 	def __init__(self, mesh_list,pubmed_file):
-		self.mesh_list = mesh_list
-		self.pubmed_file=pubmed_file
+		self.mesh_list = mesh_list # a list of mesh terms
+		self.pubmed_file=pubmed_file # the file of pubmed corpus, including the abstracts and titles
 	def __iter__(self):
 
-		for instance in self.mesh_list:
+		for instance in self.mesh_list: # read the mesh knowledge
 
 			yield instance
 
-		for line in open(self.pubmed_file, 'r'):
-			yield str(line).split()
+		for line in open(self.pubmed_file, 'r'): # read the pubmed corpus
+			yield str(line).split() # each line is a cleaned sentence, all the words are lowercased, no punctuation
 
 
 def main(args):
-	f_pkl = gzip.open(args.input_dic, 'r')
-	mesh_dict = pkl.load(f_pkl)
+	f_pkl = gzip.open(args.input_dic, 'r') # read the mesh dictionary
+	mesh_dict = pkl.load(f_pkl) # mesh_dict is a dictionary, the key is the mesh term, the value is the index of the mesh term
 	f_pkl.close()
 
+	# read the mesh knowledge, G is MeSH term graph
+	G = nx.read_edgelist(args.input_mesh, nodetype=str, create_using=nx.DiGraph()) 
+	for edge in G.edges(): # set the weight of the edges to 1
+		G[edge[0]][edge[1]]['weight'] = 1 # the reason to set the weight to 1 is that the node2vec implementation requires the weight of the edges
 
-	G = nx.read_edgelist(args.input_mesh, nodetype=str, create_using=nx.DiGraph())
-	for edge in G.edges():
-		G[edge[0]][edge[1]]['weight'] = 1
+	G = G.to_undirected() # convert the directed graph to undirected graph, then can randomly walk on the graph
 
-	G = G.to_undirected()
+	G = node2vec.Graph(G, args.directed, args.p, args.q) # create a node2vec graph
 
-	G = node2vec.Graph(G, args.directed, args.p, args.q)
+	G.preprocess_transition_probs() # preprocess the transition probabilities of the transition from one node to another node
 
-	G.preprocess_transition_probs()
+	walks = G.simulate_walks(args.num_walks, args.walk_length) # simulate the walks on the graph
 
-	walks = G.simulate_walks(args.num_walks, args.walk_length)
+	walks = [list(map(str, walk)) for walk in walks] # convert the walks to string
 
-	walks = [list(map(str, walk)) for walk in walks]
+	new_walks=[] # this list is used to store the walks, each walk is a list of mesh term index
 
-	new_walks=[]
+	node_set=set([]) # this set is used to store the mesh term index
 
-	node_set=set([])
-
-	for instance in walks:
+	for instance in walks: 
 		temp_list=[]
 		for node in instance:
 			node_set.add(node)
 			if node in mesh_dict:
-				temp_list.append(mesh_dict[node])
+				temp_list.append(mesh_dict[node]) # convert the walks to the index of the mesh term
 		new_walks.append(temp_list)
 
-	model = FastText(MySentences(new_walks,args.input_corpus), size=args.dimensions, window=args.windows, min_count=args.min_count, workers=args.workers,
-					 sg=args.sg, iter=args.iter)
+	# model = FastText(MySentences(new_walks,args.input_corpus), size=args.dimensions, window=args.windows, min_count=args.min_count, workers=args.workers,
+	# 				 sg=args.sg, iter=args.iter)
+	
+	# train the word vector model
+	model = FastText(sentences=MySentences(new_walks,args.input_corpus), vector_size=args.dimensions, window=args.windows, min_count=args.min_count, 
+				  workers=args.workers, sg=args.sg, epochs=args.iter)
+	# new_walks is the mesh knowledge, args.input_corpus is the pubmed corpus
+	# windows means the context window size
+	# min_count means the minimum frequency of the word, 
+	# workers means the number of threads, 
+	# sg means the training algorithm, skip-gram or CBOW
+	# iter means the number of iterations
 
-	model.save(args.output_model)
+	model.save(args.output_model) # save the word embedding model to pubmed_mesh_test
 
 	print(model)
 
-	model.wv.save_word2vec_format(args.output_bin, binary=True)
+	model.wv.save_word2vec_format(args.output_bin, binary=True) # output of word vector bin file
 
 if __name__ == "__main__":
 	args = parse_args()
