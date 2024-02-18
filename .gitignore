@@ -1,0 +1,5 @@
+__pycache__
+pubmed_mesh_test.bin
+pubmed_mesh_test.syn1neg.npy
+pubmed_mesh_test.wv.vectors_ngrams.npy
+pubmed_mesh_test.wv.vectors_vocab.npy
