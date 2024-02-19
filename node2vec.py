@@ -12,29 +12,29 @@ import random
 
 class Graph():
 	def __init__(self, nx_G, is_directed, p, q):
-		self.G = nx_G
+		self.G = nx_G # the graph
 		self.is_directed = is_directed
-		self.p = p
-		self.q = q
+		self.p = p # p is the return hyperparameter
+		self.q = q # q is the inout hyperparameter, which is used to control the likelihood of immediately revisiting a node in the walk
 
-	def node2vec_walk(self, walk_length, start_node):
+	def node2vec_walk(self, walk_length, start_node): # simulate a random walk starting from start node
 		'''
 		Simulate a random walk starting from start node.
 		'''
 		G = self.G
 		alias_nodes = self.alias_nodes
-		alias_edges = self.alias_edges
+		alias_edges = self.alias_edges 
 
-		walk = [start_node]
+		walk = [start_node] # the walk starts from the start node
 
-		while len(walk) < walk_length:
+		while len(walk) < walk_length: # determine the length of the walk
 			cur = walk[-1]
-			cur_nbrs = sorted(G.neighbors(cur))
+			cur_nbrs = sorted(G.neighbors(cur)) # get the neighbors of the current node
 			if len(cur_nbrs) > 0:
 				if len(walk) == 1:
 					walk.append(cur_nbrs[alias_draw(alias_nodes[cur][0], alias_nodes[cur][1])])
 				else:
-					prev = walk[-2]
+					prev = walk[-2] 
 					next = cur_nbrs[alias_draw(alias_edges[(prev, cur)][0], 
 						alias_edges[(prev, cur)][1])]
 					walk.append(next)
@@ -59,7 +59,7 @@ class Graph():
 
 		return walks
 
-	def get_alias_edge(self, src, dst):
+	def get_alias_edge(self, src, dst): 
 		'''
 		Get the alias edge setup lists for a given edge.
 		'''
