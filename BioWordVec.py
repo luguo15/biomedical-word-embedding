@@ -17,8 +17,10 @@ def parse_args():
 
 	parser = argparse.ArgumentParser()
 
-	parser.add_argument('--input_corpus', nargs='?', default='./data/pubmed_sample',
-	                    help='Input biomedical corpus')
+	# parser.add_argument('--input_corpus', nargs='?', default='./data/pubmed_sample',
+	#                     help='Input biomedical corpus')
+	parser.add_argument('--input_corpus', nargs='?', default='./data/title_abstract_2022_sentences.json',
+	                     help='Input biomedical corpus')
 
 	parser.add_argument('--input_mesh', nargs='?', default='./data/MeSH_graph.edgelist',
 						help='Input mesh knowledge')
@@ -26,10 +28,10 @@ def parse_args():
 	parser.add_argument('--input_dic', nargs='?', default='./data/MeSH_dic.pkl.gz',
 						help='Input mesh dic')
 
-	parser.add_argument('--output_model', nargs='?', default='./pubmed_mesh_test',
+	parser.add_argument('--output_model', nargs='?', default='./2022/pubmed_mesh_test',
 	                    help='output of word vector model')
 
-	parser.add_argument('--output_bin', nargs='?', default='./pubmed_mesh_test.bin',
+	parser.add_argument('--output_bin', nargs='?', default='./2022/pubmed_mesh_test.bin',
 						help='output of word vector bin file')
 
 	parser.add_argument('--dimensions', type=int, default=200,
