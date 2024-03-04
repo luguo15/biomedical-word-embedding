@@ -32,18 +32,3 @@ We also used [BioCreative/OHNLP STS](https://sites.google.com/view/ohnlp2018/hom
 |Cosine    | 0.755| 0.757 |0.771 |
 |Euclidean     | 0.723     | 0.727|0.753 |
 | Block |   0.722 |0.727   |    0.752 |
-
-User can find more usage notes in our paper.
-
-## References
-When using some of our pre-trained models for your application, please cite the following paper:
-
-Zhang Y, Chen Q, Yang Z, Lin H, Lu Z. [BioWordVec, improving biomedical word embeddings with subword information and MeSH](https://www.nature.com/articles/s41597-019-0055-0). Scientific Data. 2019.
-
-## List of Contributors ##
-Yijia  Zhang, Qingyu Chen, Zhihao Yang, Hongfei Lin and Zhiyong Lu
-
-## Acknowledgments ##
-This work was supported by the Intramural Research Programs of the National Institutes of Health, National Library of Medicine. We are grateful to the authors of fastText, Node2vec and UMNSRS for making their software and data publicly available.
-> 
-> 
